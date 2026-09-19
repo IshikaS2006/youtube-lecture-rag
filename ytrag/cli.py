@@ -42,17 +42,7 @@ from ytrag.index import (
     upsert_chunks,
 )
 from ytrag.models import Video, format_timestamp
-from ytrag.playlist import download_audio, list_playlist
 from ytrag.util import network_up, wait_for_network
-from ytrag.transcribe import (
-    cached_video_ids,
-    get_model,
-    load_transcript,
-    run_whisper,
-    segments_from_transcript,
-    transcribe,
-    transcript_path,
-)
 
 # Windows consoles still default to cp1252, which cannot encode the box-drawing
 # and arrow characters rich uses — output crashes with UnicodeEncodeError partway
@@ -103,6 +93,10 @@ def ingest(
     ),
 ):
     """Download, transcribe, chunk and index a playlist. Safe to re-run."""
+    from ytrag.playlist import list_playlist
+    from ytrag.transcribe import (
+        cached_video_ids, load_transcript, segments_from_transcript, transcribe,
+    )
     console.print(f"[bold]Listing[/bold] {playlist}")
     videos = list_playlist(playlist)
     if limit:
@@ -248,6 +242,7 @@ def reindex(
     size cost minutes instead of hours — and it is how someone without a GPU
     builds the whole index from the transcripts shipped in the repo.
     """
+    from ytrag.transcribe import cached_video_ids, load_transcript, segments_from_transcript
     # Precedence matters. Your own live cache always wins over the copy
     # committed to the repo — that copy is a point-in-time snapshot and goes
     # stale the moment you transcribe anything new. The bundled folder is a
@@ -381,6 +376,7 @@ def progress(
     GPU. It just reads the transcripts folder, so it cannot slow down or
     interfere with a run in flight.
     """
+    from ytrag.transcribe import cached_video_ids, load_transcript, transcript_path
     ids = cached_video_ids()
     if not ids:
         console.print("[yellow]No transcripts yet.[/yellow]")
@@ -417,6 +413,7 @@ def progress(
                 console.print(f"Speed:       [bold]{speed:.1f}x[/bold] realtime")
 
                 if playlist:
+                    from ytrag.playlist import list_playlist
                     videos = list_playlist(playlist)
                     total_minutes = sum(v.duration for v in videos) / 60.0
                     pct = done_minutes / total_minutes * 100 if total_minutes else 0
@@ -446,6 +443,7 @@ def progress(
 def stats():
     """What is actually in the index right now."""
     info = index_stats()
+    from ytrag.transcribe import cached_video_ids
     transcripts = cached_video_ids()
 
     console.print(f"Collection:      [bold]{info['collection']}[/bold]")
@@ -540,6 +538,8 @@ def langtest(
     This decision gets baked into hours of compute afterwards, so make it on
     evidence rather than on expectation.
     """
+    from ytrag.playlist import list_playlist, download_audio
+    from ytrag.transcribe import run_whisper
     videos = list_playlist(url)
     if not videos:
         console.print("[red]Could not resolve that URL to a video.[/red]")
@@ -619,6 +619,7 @@ def preflight(playlist: str = typer.Option("", "--playlist", "-p", help="Also ch
     check("query round-trip", lambda: f"{len(retrieve_only('preflight probe', top_k=1))} hit(s)")
 
     console.print("\n[bold]Transcription[/bold]")
+    from ytrag.transcribe import get_model, run_whisper
     # These two are the checks that would have caught the missing import: they
     # call the real functions rather than merely importing the module.
     check("whisper model loads", lambda: type(get_model()).__name__)
@@ -629,6 +630,7 @@ def preflight(playlist: str = typer.Option("", "--playlist", "-p", help="Also ch
 
     console.print("\n[bold]Network[/bold]")
     if playlist:
+        from ytrag.playlist import list_playlist
         check("playlist lists", lambda: f"{len(list_playlist(playlist))} videos")
 
     console.print("\n[bold]LLM (optional - search works without it)[/bold]")
@@ -652,6 +654,7 @@ def _probe_run_whisper() -> str:
     file error. A NameError or a bad faster-whisper call surfaces here instead
     of eight hours into an unattended run.
     """
+    from ytrag.transcribe import run_whisper
     try:
         segments, _ = run_whisper("__preflight_no_such_file__.wav", config.WHISPER_LANG)
         list(segments)
@@ -745,6 +748,7 @@ def export_transcripts(
     target = dest or (Path(__file__).resolve().parent.parent / "transcripts")
     target.mkdir(parents=True, exist_ok=True)
 
+    from ytrag.transcribe import cached_video_ids, transcript_path
     ids = cached_video_ids()
     if not ids:
         console.print("[yellow]Nothing to export — no cached transcripts.[/yellow]")

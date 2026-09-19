@@ -6,7 +6,6 @@ public — both are here, because "add it later" never happens.
 
 import time
 from collections import defaultdict, deque
-from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -22,24 +21,7 @@ from ytrag.index import stats as index_stats
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Load the embedding model before accepting traffic.
-
-    Without this the model loads lazily on the first question, so the first
-    student to use it waits ~14 seconds staring at a spinner while every
-    subsequent search takes one. Better to spend that time at startup, in the
-    terminal, where a wait is expected and explained.
-    """
-    from ytrag.embed import get_embedder
-
-    print("Loading embedding model (first run downloads it)...", flush=True)
-    embedder = get_embedder()
-    print(f"Ready: {embedder.name} ({embedder.dim}-dim)", flush=True)
-    yield
-
-
-app = FastAPI(title="YT Lecture RAG", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="YT Lecture RAG", version="0.1.0")
 
 
 class AskRequest(BaseModel):

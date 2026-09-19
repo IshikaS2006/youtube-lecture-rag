@@ -18,7 +18,7 @@ from ytrag.config import (
     WHISPER_MODEL,
 )
 from ytrag.models import Segment, Video
-from ytrag.playlist import delete_audio, download_audio
+
 
 # Loading large-v3 takes a while, so keep one instance per (model, device).
 _MODEL_CACHE: dict[tuple, object] = {}
@@ -181,6 +181,8 @@ def transcribe(
         cached = load_transcript(video.video_id)
         if cached is not None:
             return segments_from_transcript(cached)
+
+    from ytrag.playlist import delete_audio, download_audio
 
     audio_path = download_audio(video, force=force)
     raw_segments, info = run_whisper(str(audio_path), language, model_name)
