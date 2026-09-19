@@ -1,4 +1,3 @@
-````md
 # YouTube Lecture RAG
 
 A timestamp-aware **Retrieval-Augmented Generation (RAG)** system for asking questions about long-form YouTube lectures and getting **grounded answers with clickable video timestamps**.
@@ -9,7 +8,7 @@ The current implementation is demonstrated on a DSA lecture playlist, but the un
 
 ## Demo
 
-![YT Lecture RAG Demo]![alt text](image-1.png)
+![YT Lecture RAG Demo](image-1.png)
 
 Ask questions about lectures, retrieve the most relevant explanations, and jump directly to the exact moment where the concept was discussed.
 
@@ -608,5 +607,3 @@ GitHub: [@IshikaS2006](https://github.com/IshikaS2006)
 
 ⭐ If you find this project useful, consider giving it a star.
 
-```
-```
