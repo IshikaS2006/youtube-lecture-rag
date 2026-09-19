@@ -423,9 +423,9 @@
       <span class="library-name">DSA Patterns — Padho with Pratyush</span>
     </div>
     <div class="stats">
-      <span><b id="statLectures">—</b> lectures indexed</span>
-      <span><b id="statHours">—</b> hours of content</span>
-      <span><b id="statChunks">—</b> searchable moments</span>
+      <span><b id="statLectures">126</b> lectures indexed</span>
+      <span><b id="statHours">68+</b> hours of content</span>
+      <span><b id="statChunks">2,933</b> searchable moments</span>
     </div>
   </div>
 </header>
@@ -445,7 +445,7 @@
 
     <div class="examples" id="examples"></div>
 
-    <div class="label" id="resultsLabel">Where this was explained</div>
+    <div class="label" id="resultsLabel">Sources</div>
     <div id="results" class="empty-state">
       Ask a question and the exact moments appear here. Click any one to play it.
     </div>
@@ -492,13 +492,8 @@ const resultsEl = $("results");
 const nowText = $("nowText"), nowPlaying = $("nowPlaying");
 
 // ---------- stats ----------
-fetch("/meta").then(r => r.json()).then(m => {
-  $("statLectures").textContent = m.lectures;
-  $("statHours").textContent = m.hours;
-}).catch(() => {});
-fetch("/stats").then(r => r.json()).then(s => {
-  $("statChunks").textContent = (s.chunks || 0).toLocaleString();
-}).catch(() => {});
+// Values are hardcoded to match the indexed dataset (126 lectures, 68+ hrs, 2933 chunks).
+// Update these when the library is re-indexed.
 
 // ---------- example chips ----------
 EXAMPLES.forEach(text => {
