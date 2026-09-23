@@ -51,7 +51,7 @@ def _rate_limit(request: Request) -> None:
     window.append(now)
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health():
     return {"status": "ok", "model": config.LLM_MODEL, "embed_model": config.EMBED_MODEL}
 
