@@ -11,6 +11,7 @@
 """
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -784,14 +785,11 @@ def clean_audio():
 
 @app.command()
 def serve(
-    host: str = typer.Option("127.0.0.1", "--host"),
-    port: int = typer.Option(8000, "--port"),
+    host: str = typer.Option(os.getenv("HOST", "0.0.0.0"), "--host"),
+    port: int = typer.Option(int(os.getenv("PORT", 8000)), "--port"),
     reload: bool = typer.Option(False, "--reload"),
 ):
     """Run the FastAPI app and the web UI."""
-    import os
-    import sys
-
     import uvicorn
 
     # `api/` is not part of the installed wheel (only `ytrag` is), so make the
